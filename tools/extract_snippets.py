@@ -43,7 +43,7 @@ class SnippetFormat(metaclass=ABCMeta):
 class PythonMarkdownFormat(SnippetFormat):
     """
     Python snippets in markdown.
-    
+
     Code snippets begin with a line starting with "```python" and end at a line
     starting with "```".
     """
@@ -62,7 +62,29 @@ class PythonMarkdownFormat(SnippetFormat):
         return "unchecked" in self.start_line
 
 
-FORMATS = [PythonMarkdownFormat]
+class PythonRSTFormat(SnippetFormat):
+    """
+    Python snippets is rst.
+
+    Code snippets begin with a line starting with ".. code-block:: python" and
+    and with a completely empty line.
+    """
+
+    @classmethod
+    def is_start(cls, line: str) -> bool:
+        """Check if a line is the start of the code block."""
+        return line.startswith(".. code-block:: python")
+
+    def is_end(self, line: str) -> bool:
+        """Check if a line is the end of the code block."""
+        return line == "\n"
+
+    def is_unchecked(self) -> bool:
+        """Check if the code block should be checked."""
+        return False
+
+
+FORMATS = [PythonMarkdownFormat, PythonRSTFormat]
 
 
 class SnippetWriter:
@@ -93,6 +115,7 @@ def extract(input_path: Path, snippet_writer: SnippetWriter) -> None:
                 else:
                     if current_block_format.is_end(line):
                         # end code block
+                        print(f"End: {line}")
                         if not current_block_format.is_unchecked():
                             snippet_writer.write(current_code_block)
                         current_code_block = None
@@ -106,6 +129,7 @@ def extract(input_path: Path, snippet_writer: SnippetWriter) -> None:
                     if attempt is not None:
                         # start code block
                         current_code_block = ""
+                        print(f"Start: {line}")
                         current_block_format = attempt
                         break
 

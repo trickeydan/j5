@@ -31,7 +31,9 @@ isort:
 extract_snippets:
 	rm -rf $(SNIPPETS)
 	mkdir -p $(SNIPPETS)/README.md
+	mkdir -p $(SNIPPETS)/docs/quickstart
 	python3 tools/extract_snippets.py README.md $(SNIPPETS)/README.md
+	python3 tools/extract_snippets.py docs/usage/quickstart.rst $(SNIPPETS)/docs/quickstart
 
 clean:
 	git clean -Xdf # Delete all files in .gitignore
